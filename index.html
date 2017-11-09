@@ -38,7 +38,10 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		document.body.appendChild( renderer.domElement );
 
-		var geometry = new THREE.BufferGeometry();
+		//var geometry = new THREE.BufferGeometry();
+
+		var geometry = new THREE.SphereBufferGeometry(1,32,32);
+
 		// create a simple square shape. We duplicate the top left and bottom right
 		// vertices because each vertex needs to appear once per triangle.
 		var vertices = new Float32Array( [
@@ -54,7 +57,7 @@
         delta: {value: 0}
     };
 		// itemSize = 3 because there are 3 values (components) per vertex
-		geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+		//geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
 		var material = new THREE.ShaderMaterial( {
 			uniforms: customUniforms,
 			vertexShader: document.getElementById('vertexShader').textContent,
