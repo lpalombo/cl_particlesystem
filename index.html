@@ -13,21 +13,30 @@
 
 		<script type="x-shader/x-vertex" id="vertexShader">
 			uniform float delta;
+			attribute float size;
 
 			void main() {
 
 				vec3 p = position;
 
-				p.x += sin(delta) * 1.0;
-				p.y += sin(delta) * 1.0;
-
+				p.x += sin(delta) * 0.1;
+				p.y += sin(delta) * 0.1;
 				vec4 modelViewPosition = modelViewMatrix * vec4(p, 1.0);
 				gl_Position = projectionMatrix * modelViewPosition;
+				gl_PointSize = size;
 			}
 		</script>
 		<script type="x-shader/x-fragment" id="fragmentShader">
+
+			uniform float delta;
+
 			void main() {
-				gl_FragColor = vec4(1.0, 0.5, 0.0, 1.0);
+				// vec3 color;
+				// color.y = sin(delta);
+				// color.x = cos(delta);
+				// color.z = tan(delta);
+				// gl_FragColor = vec4(color, 1.0);
+				gl_FragColor = vec4(1.0,1.0,1.0,1.0);
 			}
 		</script>
 		<script>
@@ -38,24 +47,38 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		document.body.appendChild( renderer.domElement );
 
-		//var geometry = new THREE.BufferGeometry();
+		var geometry = new THREE.BufferGeometry();
 
-		var geometry = new THREE.SphereBufferGeometry(1,32,32);
+		var PARTICLE_SIZE = 10.0;
 
-		// create a simple square shape. We duplicate the top left and bottom right
-		// vertices because each vertex needs to appear once per triangle.
-		var vertices = new Float32Array( [
-			-1.0, -1.0,  1.0,
-			 1.0, -1.0,  1.0,
-			 1.0,  1.0,  1.0,
+		var particles = 500000;
 
-			 1.0,  1.0,  1.0,
-			-1.0,  1.0,  1.0,
-			-1.0, -1.0,  1.0
-		] );
+		var positions = [];
+		var sizes = [];
+
+		var n = 1000, n2 = n / 2; // particles spread in the cube
+
+		for ( var i = 0; i < particles; i ++ ) {
+			// positions
+			var x = Math.random() * n - n2;
+			var y = Math.random() * n - n2;
+			var z = Math.random() * n - n2;
+			positions.push( x, y, z );
+			// colors
+			var vx = ( x / n ) + 0.5;
+			var vy = ( y / n ) + 0.5;
+			var vz = ( z / n ) + 0.5;
+
+			sizes[i] = PARTICLE_SIZE;
+		}
 		var customUniforms = {
-        delta: {value: 0}
-    };
+			delta: {value: 0},
+		};
+		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		//geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( sizes, 1 ) );
+
+		geometry.computeBoundingSphere();
+
 		// itemSize = 3 because there are 3 values (components) per vertex
 		//geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
 		var material = new THREE.ShaderMaterial( {
@@ -63,15 +86,15 @@
 			vertexShader: document.getElementById('vertexShader').textContent,
 			fragmentShader: document.getElementById('fragmentShader').textContent
 		} );
-		var mesh = new THREE.Mesh( geometry, material );
-		scene.add(mesh);
+		var points = new THREE.Points( geometry, material );
+		scene.add(points);
 
 		camera.position.z = 5;
 
 		render();
 
 		function render() {
-			mesh.material.uniforms.delta.value += 0.1;
+			points.material.uniforms.delta.value += 0.1;
 			renderer.render( scene, camera );
 			requestAnimationFrame( render );
 		}
