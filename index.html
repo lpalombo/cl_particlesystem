@@ -19,8 +19,8 @@
 
 				vec3 p = position;
 
-				p.x += sin(delta) * 0.1;
-				p.y += sin(delta) * 0.1;
+				p.x += sin(delta) * 20.0;
+				//p.y += sin(delta) * 2.0;
 				vec4 modelViewPosition = modelViewMatrix * vec4(p, 1.0);
 				gl_Position = projectionMatrix * modelViewPosition;
 				gl_PointSize = size;
@@ -89,7 +89,7 @@
 		var points = new THREE.Points( geometry, material );
 		scene.add(points);
 
-		camera.position.z = 5;
+		camera.position.z = 1100;
 
 		render();
 
