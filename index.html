@@ -10,17 +10,22 @@
 	</head>
 	<body>
 		<script src="three.js"></script>
+		<script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
 
 		<script type="x-shader/x-vertex" id="vertexShader">
 			uniform float delta;
 			attribute float size;
+			varying vec2 vUv;
 
 			void main() {
 
 				vec3 p = position;
 
-				p.x += sin(delta) * 20.0;
-				//p.y += sin(delta) * 2.0;
+				//p.x += sin(delta) * 20.0;
+				//p.y += sin(delta) * 20.0;
+				//p.y += cos(delta) * 50.0;
+
+				vUv = uv;
 				vec4 modelViewPosition = modelViewMatrix * vec4(p, 1.0);
 				gl_Position = projectionMatrix * modelViewPosition;
 				gl_PointSize = size;
@@ -29,6 +34,7 @@
 		<script type="x-shader/x-fragment" id="fragmentShader">
 
 			uniform float delta;
+			varying vec2 vUv;
 
 			void main() {
 				// vec3 color;
@@ -36,12 +42,15 @@
 				// color.x = cos(delta);
 				// color.z = tan(delta);
 				// gl_FragColor = vec4(color, 1.0);
+
 				gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+				//gl_FragColor = vec4( vec3( vUv, 0. ), 1. );
 			}
 		</script>
 		<script>
+
 		var scene = new THREE.Scene();
-		var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
 
 		var renderer = new THREE.WebGLRenderer();
 		renderer.setSize( window.innerWidth, window.innerHeight );
@@ -49,9 +58,9 @@
 
 		var geometry = new THREE.BufferGeometry();
 
-		var PARTICLE_SIZE = 10.0;
+		var PARTICLE_SIZE = 2.0;
 
-		var particles = 500000;
+		var particles = 9000;
 
 		var positions = [];
 		var sizes = [];
@@ -75,7 +84,7 @@
 			delta: {value: 0},
 		};
 		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-		//geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( sizes, 1 ) );
+		geometry.addAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ) );
 
 		geometry.computeBoundingSphere();
 
@@ -90,12 +99,18 @@
 		scene.add(points);
 
 		camera.position.z = 1100;
+		camera.lookAt(new THREE.Vector3(0,0,0));
+
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
+
 
 		render();
 
 		function render() {
 			points.material.uniforms.delta.value += 0.1;
+
 			renderer.render( scene, camera );
+			controls.update();
 			requestAnimationFrame( render );
 		}
 
